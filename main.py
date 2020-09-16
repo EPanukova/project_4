@@ -9,30 +9,32 @@ class Carbase:
 
 class Car(Carbase):
     """Class Car"""
-    def __init__(self, car_type, brand, passenger_seats_count, photo_le_name, body_width = None, carrying = None):
+    def __init__(self, car_type, brand, passenger_seats_count, photo_le_name, body_whl = None, carrying = None):
         """Initialization method"""
         super().__init__(car_type, brand, photo_le_name)
-        self.carrying = carrying
+        self.carrying = float(carrying) or None
         self.passenger_seats_count = int(passenger_seats_count) or None
-        self.body_width = body_width
 
 
 class Truck(Carbase):
     """Class Truck"""
-    def __init__(self, car_type, brand, passenger_seats_count, photo_le_name, body_whl = None, carrying=None):
+    def __init__(self, car_type, brand, passenger_seats_count, photo_le_name, body_whl=None, carrying=None):
         """Initialization method"""
         super().__init__(car_type, brand, photo_le_name)
-        self.passenger_seats_count = None
-        self.carrying = carrying
-        self.body_whl = self.body_whl
+        self.carrying = float(carrying)
+        self.body_whl = body_whl
 
         if self.body_whl is not None:
-            self.body_whl = str(body_whl).split('x')
-            self.body_width = float(self.body_whl[0])
-            self.body_height = float(self.body_whl[1])
-            self.body_length = float(self.body_whl[-1])
+            self.body_whl = body_whl.split('x')
+            if len(self.body_whl) <= 2 or self.body_whl[0] == '':
+                self.body_width = 0
+                self.body_height = 0
+                self.body_length = 0
+            else:
+                self.body_width = float(self.body_whl[0])
+                self.body_height = float(self.body_whl[1])
+                self.body_length = float(self.body_whl[-1])
         else:
-            self.body_whl = None
             self.body_width = 0
             self.body_height = 0
             self.body_length = 0
@@ -51,31 +53,39 @@ class Specmachine(Carbase):
     def __init__(self ,car_type, brand, passenger_seats_count, photo_le_name, body_whl=None, carrying=None, extra=None):
         """Initialization method"""
         super().__init__(car_type, brand, photo_le_name)
-        self.passenger_seats_count = int(passenger_seats_count) or None
         self.body_whl = body_whl
-        self.carrying = carrying
+        self.carrying = float(carrying)
         self.extra = extra
 
 
 def get_car_list(filename):
     """Method get cars"""
     car_list = []
-    with open(filename) as file_cars:
+    with open(filename, encoding='utf-8') as file_cars:
         all_info = file_cars.readlines()
         for i in all_info:
             i = i.split(';')[:-1]
-            if i[0] == 'car':
-                car_list.append(Car(*i))
-            if i[0] == 'truck':
-                car_list.append(Truck(*i))
-            if i[0] == 'spec_machine':
-                car_list.append(Specmachine(*i))
+            try:
+                if i[0] == 'car':
+                    car_list.append(Car(*i))
+            except TypeError:
+                pass
+            try:
+                if i[0] == 'truck':
+                    car_list.append(Truck(*i))
+            except TypeError:
+                pass
+            try:
+                if i[0] == 'spec_machine':
+                    car_list.append(Specmachine(*i))
+            except TypeError:
+                pass
     return car_list
 
 
 def main():
     """Main function"""
     get_car_list('solution.txt')
-    #print(Truck.get_body_volume())
+
 if __name__ == '__main__':
     main()
